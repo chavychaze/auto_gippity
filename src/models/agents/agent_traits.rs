@@ -27,3 +27,15 @@ pub struct FactSheet {
     pub backend_code: Option<String>,
     pub api_endpoint_schema: Option<Vec<RouteObject>>,
 }
+
+#[async_trait]
+pub trait SpecialFunctions: Debug {
+    // Used to that manager can get attributes from
+    fn get_attributes_from_agent(&self) -> &BasicAgent;
+
+    // This function will allow agents to execute their logic
+    async fn execute(
+        &mut self,
+        factsheet: &mut FactSheet,
+    ) -> Result<(), Box<dyn std::error::Error>>;
+}

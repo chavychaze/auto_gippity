@@ -10,7 +10,7 @@ use std::{
 #[derive(PartialEq, Debug)]
 pub enum PrintCommand {
     AICall,
-    UnitTests,
+    UnitTest,
     Issue,
 }
 
@@ -21,7 +21,7 @@ impl PrintCommand {
         // Decide on the print color
         let statement_color: Color = match self {
             Self::AICall => Color::Cyan,
-            Self::UnitTests => Color::Magenta,
+            Self::UnitTest => Color::Magenta,
             Self::Issue => Color::Red,
         };
 
