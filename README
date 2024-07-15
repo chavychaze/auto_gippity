@@ -13,6 +13,14 @@
 cargo test tests_call_to_openai -- --nocapture
 ```
 
+## Run Project
+
+```bash
+cargo build
+cargo build --release
+cargo run
+```
+
 ### Warning
 
 For now work the best with `gpt-4-turbo`
