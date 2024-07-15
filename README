@@ -1,3 +1,7 @@
+# Intro
+
+To run a project you'll need a current project and web template. After a build, you'll need to input `What website are we building today?` and the `magic` starts - the project will be generated using your needs (input) and the template you provide with the power of OpenAI.
+
 ## Web teemplate
 
 1. Download Web_template from `https://github.com/chavychaze/web_template.git`

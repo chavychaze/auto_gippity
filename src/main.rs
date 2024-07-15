@@ -1,10 +1,8 @@
 #[macro_export]
 macro_rules! get_function_string {
-    ($func:ident) => {
-        {
+    ($func:ident) => {{
         stringify!($func)
-        }
-    };
+    }};
 }
 
 #[macro_use]
@@ -20,8 +18,9 @@ use models::agents_manager::managing_agent::ManagingAgent;
 async fn main() {
     let usr_req: String = get_user_response("What website are we building today?");
 
-    let mut manage_agent: ManagingAgent =
-        ManagingAgent::new(usr_req).await.expect("Error creating agent");
+    let mut manage_agent: ManagingAgent = ManagingAgent::new(usr_req)
+        .await
+        .expect("Error creating agent");
 
     manage_agent.execute_project().await;
 
