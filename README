@@ -12,3 +12,7 @@
 ```bash
 cargo test tests_call_to_openai -- --nocapture
 ```
+
+### Warning
+
+For now work the best with `gpt-4-turbo`
