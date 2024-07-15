@@ -1,13 +1,19 @@
+use crate::apis::call_request::call_gpt;
 use crate::helpers::command_line::PrintCommand;
-use crate::{apis::call_request::call_gpt, models::general::llm::Message};
+use crate::models::general::llm::Message;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use std::fs;
 
 const CODE_TEMPLATE_PATH: &str =
     "/Users/vitaliysobol/projects/personal/rust/autogpt/web_template/src/code_template.rs";
-const EXEC_MAIN_PATH: &str =
+
+pub const WEB_SERVER_PROJECT_PATH: &str =
+    "/Users/vitaliysobol/projects/personal/rust/autogpt/web_template/";
+
+pub const EXEC_MAIN_PATH: &str =
     "/Users/vitaliysobol/projects/personal/rust/autogpt/web_template/src/main.rs";
+
 const API_SCHEMA_PATH: &str =
     "/Users/vitaliysobol/projects/personal/rust/autogpt/auto_gippity/schemas/api_schema.json";
 
@@ -15,15 +21,16 @@ const API_SCHEMA_PATH: &str =
 pub fn extend_ai_function(ai_func: fn(&str) -> &'static str, func_input: &str) -> Message {
     let ai_function_str: &str = ai_func(func_input);
 
+    // Extend the string to encourage only printing the output
     let msg: String = format!(
         "FUNCTION: {}
-    INSTRUCTION: You are a function printer. You ONLY print the results of functions.
-    Nothing else. No commentary. Here is the input to the function {}.
-    Print out what the function will return.",
+  INSTRUCTION: You are a function printer. You ONLY print the results of functions.
+  Nothing else. No commentary. Here is the input to the function: {}.
+  Print out what the function will return.",
         ai_function_str, func_input
     );
 
-    // dbg!(&msg);
+    // Return message
     Message {
         role: "system".to_string(),
         content: msg,
@@ -38,25 +45,25 @@ pub async fn ai_task_request(
     function_pass: for<'a> fn(&'a str) -> &'static str,
 ) -> String {
     // Extend AI function
-    let extended_message: Message = extend_ai_function(function_pass, &msg_context);
+    let extended_msg: Message = extend_ai_function(function_pass, &msg_context);
 
     // Print current status
     PrintCommand::AICall.print_agent_message(agent_position, agent_operation);
 
     // Get LLM response
-    let llm_response_res = call_gpt(vec![extended_message.clone()]).await;
+    let llm_response_res: Result<String, Box<dyn std::error::Error + Send>> =
+        call_gpt(vec![extended_msg.clone()]).await;
 
     // Return Success or try again
     match llm_response_res {
         Ok(llm_resp) => llm_resp,
-
-        Err(_) => call_gpt(vec![extended_message.clone()])
+        Err(_) => call_gpt(vec![extended_msg.clone()])
             .await
             .expect("Failed twice to call OpenAI"),
     }
 }
 
-// Performs call to LLM GPT --- Decoded
+// Performs call to LLM GPT - Decoded
 pub async fn ai_task_request_decoded<T: DeserializeOwned>(
     msg_context: String,
     agent_position: &str,
@@ -65,10 +72,8 @@ pub async fn ai_task_request_decoded<T: DeserializeOwned>(
 ) -> T {
     let llm_response: String =
         ai_task_request(msg_context, agent_position, agent_operation, function_pass).await;
-
     let decoded_response: T = serde_json::from_str(llm_response.as_str())
         .expect("Failed to decode ai response from serde_json");
-
     return decoded_response;
 }
 
@@ -81,7 +86,13 @@ pub async fn check_status_code(client: &Client, url: &str) -> Result<u16, reqwes
 // Get Code Template
 pub fn read_code_template_contents() -> String {
     let path: String = String::from(CODE_TEMPLATE_PATH);
-    fs::read_to_string(path).expect("Failed to read code template.")
+    fs::read_to_string(path).expect("Failed to read code template")
+}
+
+// Get Exec Main
+pub fn read_exec_main_contents() -> String {
+    let path: String = String::from(EXEC_MAIN_PATH);
+    fs::read_to_string(path).expect("Failed to read code template")
 }
 
 // Save New Backend Code
@@ -93,7 +104,7 @@ pub fn save_backend_code(contents: &String) {
 // Save JSON API Endpoint Schema
 pub fn save_api_endpoints(api_endpoints: &String) {
     let path: String = String::from(API_SCHEMA_PATH);
-    fs::write(path, api_endpoints).expect("Failed to write API Endpoints to file.");
+    fs::write(path, api_endpoints).expect("Failed to write API Endpoints to file");
 }
 
 #[cfg(test)]
@@ -103,10 +114,10 @@ mod tests {
 
     #[test]
     fn tests_extending_ai_function() {
-        let extended_message: Message =
-            extend_ai_function(convert_user_input_to_goal, "dummy data var");
-        dbg!(&extended_message);
-        assert_eq!(extended_message.role, "system".to_string());
+        let extended_msg: Message =
+            extend_ai_function(convert_user_input_to_goal, "dummy variable");
+        dbg!(&extended_msg);
+        assert_eq!(extended_msg.role, "system".to_string());
     }
 
     #[tokio::test]
@@ -114,7 +125,7 @@ mod tests {
         let ai_func_param: String =
             "Build me a webserver for making stock price api requests.".to_string();
 
-        let res = ai_task_request(
+        let res: String = ai_task_request(
             ai_func_param,
             "Managing Agent",
             "Defining user requirements",
@@ -124,7 +135,4 @@ mod tests {
 
         assert!(res.len() > 20);
     }
-
-    // #[test]
-    // async fn
 }

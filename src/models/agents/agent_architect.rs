@@ -45,7 +45,7 @@ impl AgentSolutionArchitect {
         return ai_response;
     }
 
-    // Determine External Urls
+    // Retrieve Project Scope
     async fn call_determine_external_urls(
         &mut self,
         factsheet: &mut FactSheet,
@@ -74,6 +74,7 @@ impl SpecialFunctions for AgentSolutionArchitect {
         &mut self,
         factsheet: &mut FactSheet,
     ) -> Result<(), Box<dyn std::error::Error>> {
+        // !!! WARNING - BE CAREFUL OF INFINITATE LOOPS !!!
         while self.attributes.state != AgentState::Finished {
             match self.attributes.state {
                 AgentState::Discovery => {
@@ -136,6 +137,7 @@ impl SpecialFunctions for AgentSolutionArchitect {
                         factsheet.external_urls = Some(new_urls);
                     }
 
+                    // Confirm done
                     self.attributes.state = AgentState::Finished;
                 }
 

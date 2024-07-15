@@ -9,7 +9,7 @@ pub struct RouteObject {
     pub method: String,
     pub request_body: serde_json::Value,
     pub response: serde_json::Value,
-    pub route: serde_json::Value,
+    pub route: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -30,7 +30,7 @@ pub struct FactSheet {
 
 #[async_trait]
 pub trait SpecialFunctions: Debug {
-    // Used to that manager can get attributes from
+    // Used to that manager can get attributes from Agents
     fn get_attributes_from_agent(&self) -> &BasicAgent;
 
     // This function will allow agents to execute their logic

@@ -1,3 +1,12 @@
+## Web teemplate
+
+1. Download Web_template from `https://github.com/chavychaze/web_template.git`
+
+### Setup a project
+
+1. Update `.env` variables
+2. Update constant paths to web_template files in the `src/helpers/general.rs`
+
 ## Run tests
 
 ```bash
