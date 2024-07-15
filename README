@@ -28,3 +28,7 @@ cargo run
 ### Warning
 
 For now work the best with `gpt-4-turbo`
+
+### Sample input
+
+need a website that provides forex prices for a given list of forex pairs
